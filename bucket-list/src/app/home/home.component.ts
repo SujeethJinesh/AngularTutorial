@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { trigger, style, transition, animate, keyframes, query, stagger} from '@angular/animations';
+import { DataService } from '../data.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  //can reference this animation in div as [@goals]="goals.length" property
+  // can reference this animation in div as [@goals]="goals.length" property
   animations: [
     trigger('goals', [
       transition('* => *', [
@@ -34,17 +35,19 @@ import { trigger, style, transition, animate, keyframes, query, stagger} from '@
 export class HomeComponent implements OnInit {
 
   itemCount: number; // allows you to surface value to ui in home.component.html
-  btnText: string = 'Add an item'
-  goalText: string = 'My first life goal' // use ngModel to do two way data binding, can be referenced as
+  btnText: string = 'Add an item';
+  goalText: string = 'My first life goal'; // use ngModel to do two way data binding, can be referenced as
                                           // [(ngModel)]="goalText" in html. then can change dynamically with {{goalText}}
 
   goals = []; // use *ngFor to iterate through items in array, *ngFor="let goal of goals"
 
-  constructor() { }
+  constructor(private _data: DataService) { }
 
-  //lifecycle hook, when component runs
+  // lifecycle hook, when component runs
   ngOnInit() {
+    this._data.goal.subscribe(res => this.goals = res);
     this.itemCount = this.goals.length;
+    this._data.changeGoal(this.goals);
   }
 
   addItem() {
@@ -52,10 +55,12 @@ export class HomeComponent implements OnInit {
       this.goals.push(this.goalText);
       this.goalText = '';
       this.itemCount = this.goals.length;
+      this._data.changeGoal(this.goals);
     }
   }
 
   removeItem(i) {
     this.goals.splice(i, 1);
+    this._data.changeGoal(this.goals);
   }
 }
